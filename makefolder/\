@@ -1,0 +1,262 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <ctype.h>
+#include <string.h>
+#include "linkedlist.h"
+
+int checkInput(const char* input)
+{
+        int hasDigits = 0;
+        int hasCharacters = 0;
+
+        for (int i = 0; input[i] != '\0'; i++)
+        {
+                if (isdigit(input[i]))
+                {
+                        hasDigits = 1;
+                }
+                else if (isalpha(input[i]))
+                {
+                        hasCharacters = 1;
+                }
+        }
+        if (hasDigits)
+        {
+                // Input has only digits
+                return 1;
+        }
+        else if (hasCharacters)
+        {
+                // Input has only characters
+                return 2;
+        }
+        else
+        {
+                // Input is empty or has no alphanumeric characters
+                return -1;
+        }
+}
+
+int main()
+{
+	key_t key1 = ftok(".", 'A');
+	key_t key2 = ftok(".", 'B');
+        if (key1 == -1)
+        {
+                perror("Failed to generate key");
+                exit(1);
+        }
+
+	if (key2 == -1)
+        {
+                perror("Failed to generate key");
+                exit(1);
+        }
+
+        // Create a shared memory segment
+        int shmid1 = shmget(key1, sizeof(struct node), 0666);
+        int shmid2 = shmget(key2, 200 , 0666);
+        if (shmid1 == -1)
+        {
+                perror("Failed to create shared memory segment");
+                exit(1);
+        }
+
+	if (shmid2 == -1)
+        {
+                perror("Failed to create shared memory segment");
+                exit(1);
+        }
+
+        // Attach to the shared memory segment
+        struct node * n1;
+        char * buffer;
+	struct node * start2;
+	n1 = (struct node*) shmat(shmid1, NULL, 0);
+	buffer = (char*) shmat(shmid2, NULL, 0);
+
+
+        if (n1 == (struct node *)-1)
+        {
+                perror("Failed to attach to shared memory segment");
+                exit(1);
+        }
+        if (buffer == (char*)-1)
+        {
+                perror("Failed to attach to shared memory segment");
+                exit(1);
+        }
+	
+	while(1)
+	{
+		int f = 0;
+		//n1->sh_stat = 1;
+
+		char input[100];
+		printf("\n0. INSERT\n1. MODIFY\n2. DELETE\n3. SEARCH\n4. DISPLAY\n5. CLOSE\n");
+            	scanf("%s",input);
+		n1->choice = atoi(input);
+
+
+
+		switch(n1->choice)
+		{
+
+		case OPERATION_INSERT:
+                // Perform insert operation
+			
+                        printf("\nEnter ID: ");
+                        scanf("%s",input);
+                        while(checkInput(input) != 1)
+                        {
+                                printf("\nPlease enter valid ID: ");
+                                scanf("%s",input);
+                        }
+                        n1->data = atoi(input);
+
+                        printf("\nEnter Name: ");
+                        scanf("%s",input);
+                        while(checkInput(input) != 2)
+                        {
+                                printf("\nPlease enter valid Name: ");
+                                scanf("%s",input);
+                        }
+                        strcpy(n1->name,input);
+
+                        printf("\nEnter Sci marks: ");
+                        scanf("%s",input);
+                        while(checkInput(input) != 1)
+                        {
+                                printf("\nPlease enter valid Marks: ");
+				scanf("%s",input);
+                        }
+                        n1->m1.sci = atoi(input);
+
+                        printf("\nEnter Eng marks: ");
+                        scanf("%s",input);
+                        while(checkInput(input) != 1)
+                        {
+                                printf("\nPlease enter valid Marks: ");
+                                scanf("%s",input);
+                        }
+                        n1->m1.eng = atoi(input);
+
+                        printf("\nEnter math marks: ");
+                        scanf("%s",input);
+                        while(checkInput(input) != 1)
+                        {
+                                printf("\nPlease enter valid Marks: ");
+                                scanf("%s",input);
+                        }
+                        n1->m1.maths = atoi(input);
+
+			break;
+			
+                case OPERATION_MODIFY:
+                // Perform modify operation
+                        printf("\nEnter ID: ");
+                        scanf("%s",input);
+                        while(checkInput(input) != 1)
+                        {
+                                printf("\nPlease enter valid ID: ");
+                                scanf("%s",input);
+                        }
+                        n1->data = atoi(input);
+
+                        printf("\nEnter Name: ");
+                        scanf("%s",input);
+                        while(checkInput(input) != 2)
+                        {
+                                printf("\nPlease enter valid Name: ");
+                                scanf("%s",input);
+                        }
+                        strcpy(n1->name,input);
+
+                        printf("\nEnter Sci marks: ");
+                        scanf("%s",input);
+                        while(checkInput(input) != 1)
+                        {
+                                printf("\nPlease enter valid Marks: ");
+				scanf("%s",input);
+                        }
+                        n1->m1.sci = atoi(input);
+
+                        printf("\nEnter Eng marks: ");
+                        scanf("%s",input);
+                        while(checkInput(input) != 1)
+                        {
+                                printf("\nPlease enter valid Marks: ");
+                                scanf("%s",input);
+                        }
+                        n1->m1.eng = atoi(input);
+
+                        printf("\nEnter math marks: ");
+                        scanf("%s",input);
+                        while(checkInput(input) != 1)
+                        {
+                                printf("\nPlease enter valid Marks: ");
+                                scanf("%s",input);
+                        }
+                        n1->m1.maths = atoi(input);
+                break;
+
+                case OPERATION_DELETE:
+                // Perform delete operation
+			printf("\nEnter ID :");
+			scanf("%d",&n1->data);
+                break;
+
+                case OPERATION_SEARCH:
+                // Perform search operation
+                        printf("\nEnter ID: ");
+			 scanf("%s",input);
+                        while(checkInput(input) != 1)
+                        {
+                                printf("\nEnter Valid ID: ");
+                                scanf("%s",input);
+                        }
+                        n1->data = atoi(input);
+
+                break;
+
+                case OPERATION_DISPLAY:
+                // Perform display operation
+			//printf("\n%d\n",n2->data);
+			//printf("\n%d\n",n2->next->data);
+			display(start2);
+                break;
+
+                case OPERATION_CLOSE:
+                // Perform close operation
+                n1->sh_stat = -1;
+		f = 1;
+                break;
+
+                default:
+                // Handle unknown operation
+                printf("\nInvalid choice\n");
+                break;
+		}
+
+		n1->sh_stat = 0;
+		
+		if(f == 1)
+		{
+			break;
+		}
+
+		while(n1->sh_stat == 0)
+		{
+			sleep(1);
+		}
+
+		printf("%s",buffer);
+		//bzero(buffer,200);
+	}
+	shmdt(n1);
+	shmdt(buffer);
+	return 0;
+}	
